@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <form class="form" id="form" method="post" action="{% url 'record_form' %}">
+                <div class="row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-5 m-4">
+                                <!--begin::Engage Widget 9-->
+                                <div class="card" style="font-size:13px">
+                                    <div class="card-body">
+                                        <h3 class="text-black pb-5 font-weight-bolder text-black-50">Burs Başvuru Formu</h3>
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label>Ad Soyad</label>
+                                                    <input class="form-control " type="text" name="full_name" required
+                                                           value="{{ form.full_name|default_if_none:'' }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label>TC. No</label>
+                                                    <input class="form-control " type="text" name="tc_number" required
+                                                           value="{{ form.tc_number|default_if_none:'' }}">
+                                                </div>
+                                            </div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label>Doğum Tarihi</label>
+                                                    <input class="form-control " type="date" name="birth_date" required
+                                                           value="{{ form.birth_date }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label>Okul</label>
+                                                    <select class="form-control " name="school" id="school" required>
+                                                        <option value="">Seçiniz</option>
+                                                        {% for school in schools %}
+                                                            <option value="{{ school.id }}"
+                                                                    {% if school.id == form.school_id %}
+                                                                    selected="selected"{% endif %}> {{ school.name }}</option>{% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label>Cinsiyet</label>
+                                                    <select class="form-control " name="gender" id="gender" required>
+                                                            {% for k,v in gender %}
+                                                        <option value="{{ k }}"{% if k == form.gender %}
+                                                                selected="selected"{% endif %}>{{ v }}</option>{% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label class="checkbox">
+                                                        <input type="checkbox" {% if form.approval %}checked{% endif %} name="approval" id="approval">
+                                                        <span></span> Sözleşme Şartlarını Kabul Ediyorum
+                                                    </label>
+                                                </div>
+                                        </div>
+                                    </div>
+                                         </div>
+                                    <div class="row">
+                                            <div class="col-lg-8"></div>
+                                            <div class="col-lg-2 m-3">
+                                                <button  class="btn btn-primary" id="save">Gönder</button>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                    <div class="col-lg-3"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script-raw %}
+<script type="text/javascript">
+    var frm = $('#form');
+    $('#save').on('click',function () {
+    if($('#approval').is(':checked')){
+        if ('{{form.id}}' ==='None') var url = frm.attr('action');
+        else url ='{% url 'record_form_id' 0 %}'.replace(0,{{form.id }});
+        console.log(url);
+        $.ajax({
+                method: frm.attr('method'),
+                url: url,
+                data: frm.serialize()
+        }).done(function (result) {
+            if (result.success) {
+                $.notify(result.message,'success');
+                setTimeout(function(){ window.location.href = '/'; }, 1000);
+            } else{
+                $.notify(result.message,'error');
+            }
+        });
+        return false;
+    }else{
+         $.notify('Başvurunuzun gönderilmesi için sözleşme şartlarını kabul etmelisiniz.','warning')
+         return false;
+        }
+    });
+</script>
+{% endblock %}
+
